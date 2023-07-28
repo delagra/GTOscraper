@@ -166,8 +166,29 @@ def find_excel_location(value,obj,excel):
 
 
 def sim_to_excel(base_location,_sim, excel):
-    for index,val in enumerate(_sim.first_action):
-        base_location.offset(column=index).value = val
+    excel_order = [
+        "first_action",
+        "overpair",
+        "top_pair",
+        "mid_pair",
+        "ace_high",
+        "gutshot",
+        "oesd",
+        "overcards",
+        "nut_fd",
+        "weak_fd",
+        "sets",
+        "combos"
+    ]
+    for idx, val in enumerate(excel_order):
+        curr_combo = getattr(_sim, val)
+        print(curr_combo)
+        if curr_combo is not None:
+            for index, value in enumerate(curr_combo):
+                print(index,idx,value)
+                base_location.offset(column=index*idx).value = value
+
+
 
 
 
