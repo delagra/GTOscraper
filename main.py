@@ -6,7 +6,7 @@ import pyperclip
 pag.FAILSAFE = False
 
 def locate_solver():
-    gto_coord = pag.locateCenterOnScreen('gtoicon.PNG', confidence=0.9)
+    gto_coord = pag.locateCenterOnScreen('.\\assets\\gtoicon.PNG', confidence=0.9)
     if gto_coord == None:
         print("Solver not found, run GTO+ and make sure it is maximized before running the program again")
     pag.click(gto_coord)
@@ -15,18 +15,18 @@ def scrape_solve():
 
 
     #find and click the combos window
-    combos_coord = pag.locateCenterOnScreen('combos.PNG',grayscale=True, confidence = 0.9)
+    combos_coord = pag.locateCenterOnScreen('.\\assets\\combos.PNG',grayscale=True, confidence = 0.9)
     while combos_coord is None:
         locate_solver()
         time.sleep(1)
-        combos_coord = pag.locateCenterOnScreen('combos.PNG', grayscale=True, confidence=0.9)
+        combos_coord = pag.locateCenterOnScreen('.\\assets\\combos.PNG', grayscale=True, confidence=0.9)
     print(combos_coord)
     #time.sleep(3)
     #pag.moveTo(combos_coord)
     pag.click(combos_coord)
 
     #scroll to the end of the window
-    scroll_end = pag.locateCenterOnScreen('scroll_to_end.PNG',confidence = 0.9)
+    scroll_end = pag.locateCenterOnScreen('.\\assets\\scroll_to_end.PNG',confidence = 0.9)
     print(scroll_end)
     for  i in range(20):
         pag.press('end')
@@ -42,11 +42,11 @@ def scrape_solve():
     pag.keyUp('ctrl')
     df = pd.read_clipboard(sep='\t', names=["a", "b", "c", "d", "e"])
     print(df)
-    ok_loc = pag.locateCenterOnScreen('ok.PNG',confidence = 0.9)
+    ok_loc = pag.locateCenterOnScreen('.\\assets\\ok.PNG', confidence = 0.9)
     pag.click(ok_loc)
 
     #select the outcomes window, copy everything, paste into dataframe
-    ac_loc = pag.locateCenterOnScreen('all_combos.PNG', confidence=0.9)
+    ac_loc = pag.locateCenterOnScreen('.\\assets\\all_combos.PNG', confidence=0.9)
     pag.click(ac_loc)
     pag.keyDown('ctrl')
     time.sleep(1)
@@ -201,15 +201,15 @@ def sim_to_excel(base_location,_sim, excel):
 
 sim = Sim
 openfile("998r", sim)
+
+
 df1, df2 = scrape_solve()
 populate_class(sim, df1, df2)
-print(sim.nut_fd)
-print(sim.combos, sim.first_action)
 
 loc = find_excel_location('AAK', sim, ws)
 print(loc)
 sim_to_excel(loc,sim,ws)
-wb.save('test.xslx')
+wb.save('test.xlsx')
 '''
 df1, df2 = scrape_solve()
 df2.to_csv('gto.csv')
