@@ -6,6 +6,8 @@ def find_excel_location(value,obj,excel): #calculate where in excel the data wil
     for row in colQC:
         if row.value == value:
             base_loc = row
+            print("Base location is", base_loc)
+            break
     if obj.is_monotone:
         return base_loc.offset(column=-442)
     elif obj.is_rainbow:
@@ -14,6 +16,8 @@ def find_excel_location(value,obj,excel): #calculate where in excel the data wil
         return base_loc.offset(column=1, row=1)
     elif obj.is_two_tone3:
         return base_loc.offset(column=1, row=2)
+    elif obj.is_ttp:
+        return base_loc
     else:
         return base_loc.offset(column=1)
 
@@ -43,6 +47,8 @@ def sim_to_excel(base_location,_sim, excel): #write values into the location in 
                     coeff = 0
                 else:
                     coeff = -1
+                    if index >0:
+                        value = float(value)/100
                 #print(base_location.offset(column=idx*4+index))
                 #print(idx,index, idx*4+index+coeff)
                 base_location.offset(column=idx*4+index+coeff).value = value
