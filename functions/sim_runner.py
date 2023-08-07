@@ -7,8 +7,8 @@ def parse_filename(filename):
     for idx, char in enumerate(filename):
         if char == ' ':
             spaces.append(idx)
-    res = (filename[spaces[-1]:])
-    return res.replace('.gto', '')
+    res = (filename[spaces[-1]+1:])
+    return res
 
 
 def get_sim_files(path):

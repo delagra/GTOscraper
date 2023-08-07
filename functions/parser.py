@@ -3,22 +3,12 @@ import pandas as pd
 import time
 import clipboard
 from functions import excel_writer as ew
-
-mouse_locations = {
-    "start": (33, 76),
-    "bet1": (230, 76),
-    "bet1raise": (443, 76),
-    "check": (230, 117),
-    "action2opt3": (230, 137),
-    "action3opt2": (443, 117),
-    "action3opt3": (443, 137)
-}
-
+from functions.variables import mouse_locations, options_mt, options_2t
 
 def locate_solver():
     gto_coord = pag.locateCenterOnScreen('.\\assets\\gtoicon.PNG', confidence=0.9)
     #gto_coord = pag.locateCenterOnScreen('.\\assets\\gtoicon.PNG')
-    if gto_coord == None:
+    if gto_coord is None:
         print("Solver not found, run GTO+ and make sure it is maximized before running the program again")
     pag.click(gto_coord)
     time.sleep(0.5)
@@ -67,7 +57,7 @@ def scrape_solve():
     new = txt[cut:]
     clipboard.copy(new)
     df = pd.read_clipboard(sep='\t', names=["a", "b", "c", "d", "e"])
-    print(df)
+    #print(df)
     ok_loc = pag.locateCenterOnScreen('.\\assets\\ok.PNG', confidence=0.9)
     #ok_loc = pag.locateCenterOnScreen('.\\assets\\ok.PNG')
     pag.click(ok_loc)
@@ -84,7 +74,7 @@ def scrape_solve():
     bigdf = pd.read_clipboard(sep='\t')
     pag.press('esc')
     pag.moveTo(mouse_locations["start"])
-    print(bigdf)
+    #print(bigdf)
     return df, bigdf
 
 
@@ -97,28 +87,24 @@ def get_statistic(_df, stat):
     output = [round(calc[0])]
     for val in calc[1:]:
         if not pd.isna(val):
-            output.append(round(val / calc[0] * 100))
+            if calc[0] == 0:
+                output.append(0)
+            else:
+                output.append(round(val / calc[0] * 100))
         else:
             output.append(val)
     return output
 
 
 def populate_class(_sim, df1, df2):  # populate the instance attributes with the values from dataframes
-    options = {  # values as they are in the class vs as they are in dataframes
-        'top_pair': 'top pair',
-        'overpair': 'overpair',
-        'mid_pair': 'middle pair',
-        'ace_high': 'ace high',
-        'gutshot': 'gutshot',
-        'overcards': 'overcards',
-        'nut_fd': 'nut flushdr.',
-        'weak_fd': 'weak flushdr.',
-        'set': 'set',
-        'oesd': 'oesd'
-    }
+
+    if _sim.is_monotone:
+        options = options_mt
+    else:
+        options = options_2t
     for key, value in options.items():
         setattr(_sim, key, get_statistic(df2, value))
-    setattr(_sim, 'first_action', [df1['c'][1], df1['b'][1], df1['d'][1]])
+    setattr(_sim, 'first_action', [df1['d'][1], df1['c'][1], df1['b'][1]])
     setattr(_sim, 'combos', [df1['b'][0]])
 
 
@@ -136,13 +122,15 @@ def openfile(file: str, sim_instance):  # read the filename and define board str
     if "r" in file:
         setattr(sim_instance, "is_rainbow", True)
 
-    locate_solver()
+
     pag.keyDown('ctrl')
     pag.press('o')
     pag.keyUp('ctrl')
     time.sleep(1)
-    pag.write(file + ".gto")
+    pag.write(file)
     pag.press('enter')
+    pag.sleep(0.5)
+    pag.press('n')
 
 def process_sim(filename,sim, ws):
     # main flow starts. click on the first action and read data, write them into excel. needs refactoring
@@ -151,20 +139,26 @@ def process_sim(filename,sim, ws):
     time.sleep(0.5)
     df1, df2 = scrape_solve()
     populate_class(sim, df1, df2)
+    if sim.is_monotone:
+        columnoffset = 48 #extra column = flush
+    elif sim.is_rainbow:
+        columnoffset = 40 #no flush draw
+    else:
+        columnoffset = 44
     loc = ew.find_excel_location(filename, sim, ws)
     print("Excel write location is", loc)
     ew.sim_to_excel(loc, sim, ws)
 
-    # click on the second action, read, write to excel
+    # click on the second action, read, write to excel : bet 1
     pag.moveTo(mouse_locations["bet1"])
     pag.click()
     time.sleep(0.5)
     df1, df2 = scrape_solve()
     populate_class(sim, df1, df2)
-    loc = loc.offset(column=44)  # second batch of data is inserted 44 columns later
+    loc = loc.offset(column=columnoffset)  # second batch of data is inserted 44 columns later
     ew.sim_to_excel(loc, sim, ws)
 
-    # click on second, then third action (raise), write into excel
+    # click on second, then third action (raise), write into excel bet 1 raise
     ##pag.moveTo(mouse_locations["bet1"])
     # pag.click()
     time.sleep(0.5)
@@ -172,7 +166,7 @@ def process_sim(filename,sim, ws):
     pag.click()
     df1, df2 = scrape_solve()
     populate_class(sim, df1, df2)
-    loc = loc.offset(column=44)
+    loc = loc.offset(column=columnoffset)
     ew.sim_to_excel(loc, sim, ws)
 
     # click on first, then check (2nd tree branch)
@@ -183,10 +177,10 @@ def process_sim(filename,sim, ws):
     pag.click()
     df1, df2 = scrape_solve()
     populate_class(sim, df1, df2)
-    loc = loc.offset(column=44 * 3)
+    loc = loc.offset(column=columnoffset * 3)
     ew.sim_to_excel(loc, sim, ws)
 
-    # click on the second action, read, write to excel
+    # click on the second action, read, write to excel :check, bet1
     pag.moveTo(mouse_locations["bet1"])
     pag.click()
     time.sleep(0.5)
@@ -194,16 +188,41 @@ def process_sim(filename,sim, ws):
     pag.click()
     df1, df2 = scrape_solve()
     populate_class(sim, df1, df2)
-    loc = loc.offset(column=44)
+    loc = loc.offset(column=columnoffset)
     ew.sim_to_excel(loc, sim, ws)
 
-    # click on the third action (raise), read, write to excel
-    pag.moveTo(mouse_locations["bet1raise"])
+    # check, bet1, raise
+    #pag.moveTo(mouse_locations["bet1"])
+    #pag.click()
+    time.sleep(0.5)
+    # time.sleep(0.5)
+    pag.moveTo(mouse_locations["checkbetraise"])
+    pag.click()
+    df1, df2 = scrape_solve()
+    populate_class(sim, df1, df2)
+    loc = loc.offset(column=columnoffset)
+    ew.sim_to_excel(loc, sim, ws)
+
+    # check, bet2
+    pag.moveTo(mouse_locations["bet1"])
     pag.click()
     time.sleep(0.5)
     # time.sleep(0.5)
-    pag.moveTo(mouse_locations["action2opt3"])
+    pag.moveTo(mouse_locations["action3opt3"])
+    pag.click()
     df1, df2 = scrape_solve()
     populate_class(sim, df1, df2)
-    loc = loc.offset(column=44)
+    loc = loc.offset(column=columnoffset)
+    ew.sim_to_excel(loc, sim, ws)
+
+    # check, bet2, raise
+    pag.moveTo(mouse_locations["checkbetraise"])
+    pag.click()
+  #  time.sleep(0.5)
+    # time.sleep(0.5)
+   # pag.moveTo(mouse_locations["action3opt2"])
+    pag.click()
+    df1, df2 = scrape_solve()
+    populate_class(sim, df1, df2)
+    loc = loc.offset(column=columnoffset)
     ew.sim_to_excel(loc, sim, ws)
