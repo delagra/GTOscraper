@@ -37,12 +37,17 @@ class Sim:  # class that will contain all sim results to be populated in excel l
 
 sims_to_process = (sr.read_sim_status_list())
 sim_files = (sr.get_sim_files('./sims'))
+sr.rename_sim_files(sim_files, 'vs BB ')
+sim_files = (sr.get_sim_files('./sims'))
 print("Syncing available sims with the status file")
 for sim_file in sim_files:
     if sim_file not in sims_to_process:
         sims_to_process[sim_file] = "Solved"
         print("Sim file", sim_file, "exists but not marked as solved, updating status file")
-sr.write_sim_status_list(sims_to_process)
+dict2sort = list(sims_to_process.keys())
+dict2sort.sort()
+simslist_sorted = {i: sims_to_process[i] for i in dict2sort}
+sr.write_sim_status_list(simslist_sorted)
 print(sims_to_process)
 
 p.locate_solver()

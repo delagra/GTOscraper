@@ -5,9 +5,10 @@ import clipboard
 from functions import excel_writer as ew
 from functions.variables import mouse_locations, options_mt, options_2t
 
+
 def locate_solver():
     gto_coord = pag.locateCenterOnScreen('.\\assets\\gtoicon.PNG', confidence=0.9)
-    #gto_coord = pag.locateCenterOnScreen('.\\assets\\gtoicon.PNG')
+    # gto_coord = pag.locateCenterOnScreen('.\\assets\\gtoicon.PNG')
     if gto_coord is None:
         print("Solver not found, run GTO+ and make sure it is maximized before running the program again")
     pag.click(gto_coord)
@@ -57,15 +58,21 @@ def scrape_solve():
     new = txt[cut:]
     clipboard.copy(new)
     df = pd.read_clipboard(sep='\t', names=["a", "b", "c", "d", "e"])
-    #print(df)
-    ok_loc = pag.locateCenterOnScreen('.\\assets\\ok.PNG', confidence=0.9)
-    #ok_loc = pag.locateCenterOnScreen('.\\assets\\ok.PNG')
-    pag.click(ok_loc)
+    # print(df)
+    # ok_loc = pag.locateCenterOnScreen('.\\assets\\ok.PNG', confidence=0.9)
+    # ok_loc = pag.locateCenterOnScreen('.\\assets\\ok.PNG')
+    # pag.click(ok_loc)
+    pag.press('esc')
     time.sleep(0.5)
 
     # select the outcomes window, copy everything, paste into dataframe
     ac_loc = pag.locateCenterOnScreen('.\\assets\\all_combos.PNG', confidence=0.9)
-    #ac_loc = pag.locateCenterOnScreen('.\\assets\\all_combos.PNG')
+    # ac_loc = pag.locateCenterOnScreen('.\\assets\\all_combos.PNG')
+    if ac_loc is None:
+        time.sleep(0.5)
+        ac_loc = pag.locateCenterOnScreen('.\\assets\\all_combos.PNG', confidence=0.9)
+
+    # ac_loc = (1363,234)
     pag.click(ac_loc)
     pag.keyDown('ctrl')
     time.sleep(0.5)
@@ -74,7 +81,7 @@ def scrape_solve():
     bigdf = pd.read_clipboard(sep='\t')
     pag.press('esc')
     pag.moveTo(mouse_locations["start"])
-    #print(bigdf)
+    print(bigdf)
     return df, bigdf
 
 
@@ -104,7 +111,10 @@ def populate_class(_sim, df1, df2):  # populate the instance attributes with the
         options = options_2t
     for key, value in options.items():
         setattr(_sim, key, get_statistic(df2, value))
-    setattr(_sim, 'first_action', [df1['d'][1], df1['c'][1], df1['b'][1]])
+    fa = [df1['d'][1], df1['c'][1], df1['b'][1]]
+    fa_clean = [item for item in fa if
+                not (pd.isnull(item)) is True]  # if there is a nan, drop it, when only 1 bet size
+    setattr(_sim, 'first_action', fa_clean)
     setattr(_sim, 'combos', [df1['b'][0]])
 
 
@@ -122,7 +132,6 @@ def openfile(file: str, sim_instance):  # read the filename and define board str
     if "r" in file:
         setattr(sim_instance, "is_rainbow", True)
 
-
     pag.keyDown('ctrl')
     pag.press('o')
     pag.keyUp('ctrl')
@@ -132,7 +141,8 @@ def openfile(file: str, sim_instance):  # read the filename and define board str
     pag.sleep(0.5)
     pag.press('n')
 
-def process_sim(filename,sim, ws):
+
+def process_sim(filename, sim, ws):
     # main flow starts. click on the first action and read data, write them into excel. needs refactoring
     pag.moveTo(mouse_locations["start"])
     pag.click()
@@ -140,9 +150,9 @@ def process_sim(filename,sim, ws):
     df1, df2 = scrape_solve()
     populate_class(sim, df1, df2)
     if sim.is_monotone:
-        columnoffset = 48 #extra column = flush
+        columnoffset = 48  # extra column = flush
     elif sim.is_rainbow:
-        columnoffset = 40 #no flush draw
+        columnoffset = 40  # no flush draw
     else:
         columnoffset = 44
     loc = ew.find_excel_location(filename, sim, ws)
@@ -192,8 +202,8 @@ def process_sim(filename,sim, ws):
     ew.sim_to_excel(loc, sim, ws)
 
     # check, bet1, raise
-    #pag.moveTo(mouse_locations["bet1"])
-    #pag.click()
+    # pag.moveTo(mouse_locations["bet1"])
+    # pag.click()
     time.sleep(0.5)
     # time.sleep(0.5)
     pag.moveTo(mouse_locations["checkbetraise"])
@@ -218,9 +228,9 @@ def process_sim(filename,sim, ws):
     # check, bet2, raise
     pag.moveTo(mouse_locations["checkbetraise"])
     pag.click()
-  #  time.sleep(0.5)
+    #  time.sleep(0.5)
     # time.sleep(0.5)
-   # pag.moveTo(mouse_locations["action3opt2"])
+    # pag.moveTo(mouse_locations["action3opt2"])
     pag.click()
     df1, df2 = scrape_solve()
     populate_class(sim, df1, df2)

@@ -1,0 +1,1 @@
+66-22,A9s-A6s,K9s-K7s,K5s-K2s,Q7s-Q2s,J4s-J2s,T5s,97s-96s,86s-85s,75s-74s,64s-63s,53s-52s,43s-42s,Q9o,J9o,[75.0]77,ATs,K6s,AJo-A4o,KJo-K9o,QJo-QTo,JTo,T9o[/75.0],[50.0]88,A5s-A2s,KJs-KTs,QJs-Q8s,JTs-J5s,T9s-T6s,98s,95s,87s,76s,65s,54s,KQo,T8o,98o,87o[/50.0],[25.0]99,32s,76o,65o[/25.0]

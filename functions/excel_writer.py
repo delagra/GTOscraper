@@ -13,7 +13,7 @@ def find_excel_location(value, obj, excel):  # calculate where in excel the data
     if obj.is_monotone:
         return base_loc.offset(column=-482)
     elif obj.is_rainbow:
-        if value[0] == value[1] == value[2]:
+        if value[0] == value[1] == value[2]: #if the board is trips
             colAIR = excel['AIR']
             for row in colAIR:
                 if row.value == value:
@@ -25,7 +25,7 @@ def find_excel_location(value, obj, excel):  # calculate where in excel the data
     elif obj.is_two_tone3:
         return base_loc.offset(column=1, row=2)
     elif obj.is_ttp:
-        return base_loc
+        return base_loc.offset(column=1)
     else:
         return base_loc.offset(column=1)
 
@@ -56,13 +56,13 @@ def sim_to_excel(base_location, _sim, excel):  # write values into the location 
         "combos"
     ]
     '''
-    for idx, val in enumerate(excel_order):
+    for idx, val in enumerate(excel_order): #iterating through stats
         curr_combo = getattr(_sim, val)
         # print(curr_combo)
 
         if curr_combo is not None:
             print("Writing", val)
-            for index, value in enumerate(curr_combo):
+            for index, value in enumerate(curr_combo): #iterating through numbers inside a stat
                 if idx == 0:
                     coeff = 0
                 else:
