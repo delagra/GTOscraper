@@ -1,5 +1,6 @@
 import pyautogui as pag
 import openpyxl as op
+import sys
 
 from functions import parser as p, sim_runner as sr
 
@@ -34,6 +35,7 @@ class Sim:  # class that will contain all sim results to be populated in excel l
     flush = []
     combos = []
 
+if __name__ == '__main__':
 
 sims_to_process = (sr.read_sim_status_list())
 sim_files = (sr.get_sim_files('./sims'))
