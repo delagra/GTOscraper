@@ -5,6 +5,7 @@ import clipboard
 from functions import excel_writer as ew
 from functions.variables import mouse_locations, options_mt, options_2t
 
+delay_time = 0.1
 
 def locate_solver():
     gto_coord = pag.locateCenterOnScreen('.\\assets\\gtoicon.PNG', confidence=0.9)
@@ -12,7 +13,7 @@ def locate_solver():
     if gto_coord is None:
         print("Solver not found, run GTO+ and make sure it is maximized before running the program again")
     pag.click(gto_coord)
-    time.sleep(0.5)
+    time.sleep(delay_time)
     pag.moveTo(mouse_locations["start"])
     pag.click()
 
@@ -23,33 +24,6 @@ def scrape_solve():
     pag.press('o')
     pag.keyUp('ctrl')
     pag.keyUp('alt')
-    '''
-    #find and click the combos window
-    combos_coord = pag.locateCenterOnScreen('.\\assets\\combos.PNG',grayscale=True, confidence = 0.9)
-    while combos_coord is None:
-        locate_solver()
-        time.sleep(0.5)
-        combos_coord = pag.locateCenterOnScreen('.\\assets\\combos.PNG', grayscale=True, confidence=0.9)
-    print(combos_coord)
-    #time.sleep(3)
-    #pag.moveTo(combos_coord)
-    pag.click(combos_coord)
-
-    #scroll to the end of the window
-    scroll_end = pag.locateCenterOnScreen('.\\assets\\scroll_to_end.PNG',confidence = 0.9)
-    print(scroll_end)
-    for  i in range(20):
-        pag.press('end')
-    time.sleep(0.5)
-    
-    pag.press('end')
-    # select the bottom lines, copy, paste them into pandas dataframe
-    time.sleep(0.5)
-    pag.keyDown('shift')
-    for i in range(6):
-        pag.press('up')
-    pag.keyUp('shift')
-    '''
     pag.keyDown('ctrl')
     pag.press('c')
     pag.keyUp('ctrl')
@@ -63,19 +37,19 @@ def scrape_solve():
     # ok_loc = pag.locateCenterOnScreen('.\\assets\\ok.PNG')
     # pag.click(ok_loc)
     pag.press('esc')
-    time.sleep(0.5)
+    time.sleep(delay_time)
 
     # select the outcomes window, copy everything, paste into dataframe
     ac_loc = pag.locateCenterOnScreen('.\\assets\\all_combos.PNG', confidence=0.9)
     # ac_loc = pag.locateCenterOnScreen('.\\assets\\all_combos.PNG')
     if ac_loc is None:
-        time.sleep(0.5)
+        time.sleep(delay_time)
         ac_loc = pag.locateCenterOnScreen('.\\assets\\all_combos.PNG', confidence=0.9)
 
     # ac_loc = (1363,234)
     pag.click(ac_loc)
     pag.keyDown('ctrl')
-    time.sleep(0.5)
+    time.sleep(delay_time)
     pag.press('c')
     pag.keyUp('ctrl')
     bigdf = pd.read_clipboard(sep='\t')
@@ -135,10 +109,10 @@ def openfile(file: str, sim_instance):  # read the filename and define board str
     pag.keyDown('ctrl')
     pag.press('o')
     pag.keyUp('ctrl')
-    time.sleep(1)
+    time.sleep(delay_time)
     pag.write(file)
     pag.press('enter')
-    pag.sleep(0.5)
+    pag.sleep(delay_time)
     pag.press('n')
 
 
@@ -146,7 +120,7 @@ def process_sim(filename, sim, ws):
     # main flow starts. click on the first action and read data, write them into excel. needs refactoring
     pag.moveTo(mouse_locations["start"])
     pag.click()
-    time.sleep(0.5)
+    time.sleep(delay_time)
     df1, df2 = scrape_solve()
     populate_class(sim, df1, df2)
     if sim.is_monotone:
@@ -162,7 +136,7 @@ def process_sim(filename, sim, ws):
     # click on the second action, read, write to excel : bet 1
     pag.moveTo(mouse_locations["bet1"])
     pag.click()
-    time.sleep(0.5)
+    time.sleep(delay_time)
     df1, df2 = scrape_solve()
     populate_class(sim, df1, df2)
     loc = loc.offset(column=columnoffset)  # second batch of data is inserted 44 columns later
@@ -171,7 +145,7 @@ def process_sim(filename, sim, ws):
     # click on second, then third action (raise), write into excel bet 1 raise
     ##pag.moveTo(mouse_locations["bet1"])
     # pag.click()
-    time.sleep(0.5)
+    time.sleep(delay_time)
     pag.moveTo(mouse_locations["bet1raise"])
     pag.click()
     df1, df2 = scrape_solve()
@@ -182,7 +156,7 @@ def process_sim(filename, sim, ws):
     # click on first, then check (2nd tree branch)
     pag.moveTo(mouse_locations["start"])
     pag.click()
-    time.sleep(0.5)
+    time.sleep(delay_time)
     pag.moveTo(mouse_locations["check"])
     pag.click()
     df1, df2 = scrape_solve()
@@ -191,9 +165,9 @@ def process_sim(filename, sim, ws):
     ew.sim_to_excel(loc, sim, ws)
 
     # click on the second action, read, write to excel :check, bet1
-    pag.moveTo(mouse_locations["bet1"])
+    pag.moveTo(mouse_locations["action3opt3"])
     pag.click()
-    time.sleep(0.5)
+    time.sleep(delay_time)
     pag.moveTo(mouse_locations["bet1raise"])
     pag.click()
     df1, df2 = scrape_solve()
@@ -204,7 +178,7 @@ def process_sim(filename, sim, ws):
     # check, bet1, raise
     # pag.moveTo(mouse_locations["bet1"])
     # pag.click()
-    time.sleep(0.5)
+    time.sleep(delay_time)
     # time.sleep(0.5)
     pag.moveTo(mouse_locations["checkbetraise"])
     pag.click()
@@ -216,9 +190,9 @@ def process_sim(filename, sim, ws):
     # check, bet2
     pag.moveTo(mouse_locations["bet1"])
     pag.click()
-    time.sleep(0.5)
+    time.sleep(delay_time)
     # time.sleep(0.5)
-    pag.moveTo(mouse_locations["action3opt3"])
+    pag.moveTo(mouse_locations["bet1"])
     pag.click()
     df1, df2 = scrape_solve()
     populate_class(sim, df1, df2)

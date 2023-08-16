@@ -6,19 +6,30 @@ def find_excel_location(value, obj, excel):  # calculate where in excel the data
 
     colQC = excel['RQ']  # column that contains all boards, use it as a starting point
     for row in colQC:
-        if row.value == value:
+        if str(row.value) == value:
             base_loc = row
             print("Base location is", base_loc)
             break
     if obj.is_monotone:
         return base_loc.offset(column=-482)
     elif obj.is_rainbow:
+        try:
+            print(base_loc)
+        except:
+            print("Base_loc not assigned")
+        print(f"Trips board?{value[0]==value[1]==value[2]}")
         if value[0] == value[1] == value[2]: #if the board is trips
             colAIR = excel['AIR']
+            #print(colAIR)
+            print(f"board = {value}")
             for row in colAIR:
-                if row.value == value:
+
+                if str(row.value) == value:
+                    print("Found!")
                     base_loc = row
                     return base_loc.offset(column=1)
+            else:
+                print("Trips board not found")
         return base_loc.offset(column=444)
     elif obj.is_two_tone2:
         return base_loc.offset(column=1, row=1)

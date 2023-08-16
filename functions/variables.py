@@ -1,12 +1,13 @@
-mouse_locations = {
-    "start": (33, 76),
-    "bet1": (225, 76),
-    "bet1raise": (443, 76),
-    "check": (230, 117),
-    "action2opt3": (225, 117),
+delay_time = 0.1 #delay between operations in seconds
 
+mouse_locations = {
+    "start": (33, 76), #top left
+    "bet1": (225, 76), #top second
+    "bet1raise": (443, 76), #top third
+    "check": (230, 117), #mid second
+    "donk2": (230, 158), #bottom second
     "action3opt3": (443, 117),
-    "checkbetraise": (616, 76)
+    "checkbetraise": (616, 76) #top fourth
 
 }
 

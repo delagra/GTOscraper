@@ -1,6 +1,7 @@
 import pyautogui as pag
 import openpyxl as op
 import sys
+import asyncio
 
 from functions import parser as p, sim_runner as sr
 
@@ -9,7 +10,9 @@ pag.FAILSAFE = False
 
 wb = op.load_workbook('Simulation Template v2.xlsx')
 ws = wb.active
+output_file = 'test.xlsx'
 
+prefix = ws['D3'] #read file renaming prefix from excel
 
 class Sim:  # class that will contain all sim results to be populated in excel later
     def __init__(self, board):
@@ -35,7 +38,12 @@ class Sim:  # class that will contain all sim results to be populated in excel l
     flush = []
     combos = []
 
-if __name__ == '__main__':
+def save_excel(filename):
+    wb.save(filename)
+#p.process_sim(filename, sim, ws)
+async def async_save(filename):
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, save_excel, filename)
 
 sims_to_process = (sr.read_sim_status_list())
 sim_files = (sr.get_sim_files('./sims'))
@@ -53,25 +61,27 @@ sr.write_sim_status_list(simslist_sorted)
 print(sims_to_process)
 
 p.locate_solver()
+
+
 for filename in sims_to_process:
-    if sims_to_process[filename] == "Processed":
-        continue
-    sim = Sim
-    p.openfile(filename, sim)
-    trunc_filename = sr.parse_filename(filename)
-    print("Processing", trunc_filename)
+    try:
+        if sims_to_process[filename] == "Processed":
+            continue
+        sim = Sim
+        p.openfile(filename, sim)
+        trunc_filename = sr.parse_filename(filename)
+        print("Processing", trunc_filename)
 
-    p.process_sim(trunc_filename, sim, ws)
-    sims_to_process[filename] = "Processed"
-    print(filename, "processed")
-    sr.write_sim_status_list(sims_to_process)
+        p.process_sim(trunc_filename, sim, ws)
+        sims_to_process[filename] = "Processed"
+        print(filename, "processed")
+        sr.write_sim_status_list(sims_to_process)
+    except:
+        print("There was an error, saving current progress")
+        wb.save(output_file)
+
+wb.save(output_file)
 
 
-#filename = "AKJm"  # filename to open, change to the conventional
 
 
-#p.openfile(filename, sim)
-
-#p.process_sim(filename, sim, ws)
-
-wb.save('test.xlsx')  # save file
