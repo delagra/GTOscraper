@@ -1,17 +1,17 @@
-from functions.variables import options_mt, options_2t, options_r
+import functions.variables as config
 
 def find_excel_location(value, obj, excel):  # calculate where in excel the data will be written
     value = value[0:3]
     print(value)
 
-    colQC = excel['RQ']  # column that contains all boards, use it as a starting point
+    colQC = excel[config.twotone_column]  # column that contains all boards, use it as a starting point
     for row in colQC:
         if str(row.value) == value:
             base_loc = row
             print("Base location is", base_loc)
             break
     if obj.is_monotone:
-        return base_loc.offset(column=-482)
+        return base_loc.offset(column=-522) #this many columns between 2tone and monotone boards in excel
     elif obj.is_rainbow:
         try:
             print(base_loc)
@@ -19,7 +19,7 @@ def find_excel_location(value, obj, excel):  # calculate where in excel the data
             print("Base_loc not assigned")
         print(f"Trips board?{value[0]==value[1]==value[2]}")
         if value[0] == value[1] == value[2]: #if the board is trips
-            colAIR = excel['AIR']
+            colAIR = excel[config.rainbow_column]
             #print(colAIR)
             print(f"board = {value}")
             for row in colAIR:
@@ -30,7 +30,7 @@ def find_excel_location(value, obj, excel):  # calculate where in excel the data
                     return base_loc.offset(column=1)
             else:
                 print("Trips board not found")
-        return base_loc.offset(column=444)
+        return base_loc.offset(column=484) #this many columns between 2tone and rainbow columns in excel
     elif obj.is_two_tone2:
         return base_loc.offset(column=1, row=1)
     elif obj.is_two_tone3:
@@ -44,29 +44,13 @@ def find_excel_location(value, obj, excel):  # calculate where in excel the data
 def sim_to_excel(base_location, _sim, excel):  # write values into the location in excel
     excel_order = ["first_action"]
     if _sim.is_monotone:
-        excel_order.extend(list(options_mt.keys()))
+        excel_order.extend(list(config.options_mt.keys()))
     elif _sim.is_rainbow:
-        excel_order.extend(list(options_r.keys()))
+        excel_order.extend(list(config.options_r.keys()))
     else:
-        excel_order.extend(list(options_2t.keys()))
+        excel_order.extend(list(config.options_2t.keys()))
     excel_order.append("combos")
-    '''
-    excel_order = [
-        "first_action",
-        "overpair",
-        "top_pair",
-        "mid_pair",
-        "ace_high",
-        "gutshot",
-        "oesd",
-        "overcards",
-        "nut_fd",
-        "weak_fd",
-        "set",
-        'flush',
-        "combos"
-    ]
-    '''
+
     for idx, val in enumerate(excel_order): #iterating through stats
         curr_combo = getattr(_sim, val)
         # print(curr_combo)

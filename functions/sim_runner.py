@@ -142,39 +142,5 @@ def read_boards_r():
     return boards_r
 
 
-def start_solving_session(range1, range2):
-    # click on range 1
-    pass
-    # enter range
-
-    # click enter
-
-    # click on range 2
-
-    # enter range
-
-    # click enter
-
-
-def solve_board(board):
-    # click on board
-    pass
-    # click on board field
-
-    # enter board
-
-    # click on build tree
-
-    # click on advanced
-
-    # click on build tree
-
-    # click on build new tree
-
-    # click on run solver
-
-    # wait for "Finalizing"
-
-
 if __name__ == '__main__':
     create_gto_database()

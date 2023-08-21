@@ -4,20 +4,27 @@ import sys
 import asyncio
 
 from functions import parser as p, sim_runner as sr
-
+import functions.variables as config
 
 pag.FAILSAFE = False
+donk_mode = False
+args = sys.argv
 
+if 'donk' in args:
+    print("Donk mode on")
+    donk_mode = True
+
+p.donk_mode = donk_mode
 wb = op.load_workbook('Simulation Template v2.xlsx')
 ws = wb.active
-output_file = 'test.xlsx'
+output_file = config.output_file
 
-prefix = ws['D3'] #read file renaming prefix from excel
+prefix = ws[config.prefix_location] #read file renaming prefix from excel
 
 class Sim:  # class that will contain all sim results to be populated in excel later
-    def __init__(self, board):
-        self.board = board
 
+    def print_att(self):
+        print (f"monotone: {self.is_monotone}, rainbow: {self.is_rainbow}, ttp: {self.is_ttp}")
     is_monotone = False
     is_two_tone1 = False
     is_two_tone2 = False
@@ -35,15 +42,10 @@ class Sim:  # class that will contain all sim results to be populated in excel l
     nut_fd = []
     weak_fd = []
     sets = []
+    two_pair = []
     flush = []
     combos = []
 
-def save_excel(filename):
-    wb.save(filename)
-#p.process_sim(filename, sim, ws)
-async def async_save(filename):
-    loop = asyncio.get_event_loop()
-    await loop.run_in_executor(None, save_excel, filename)
 
 sims_to_process = (sr.read_sim_status_list())
 sim_files = (sr.get_sim_files('./sims'))
@@ -67,20 +69,27 @@ for filename in sims_to_process:
     try:
         if sims_to_process[filename] == "Processed":
             continue
-        sim = Sim
-        p.openfile(filename, sim)
+        sim = Sim()
         trunc_filename = sr.parse_filename(filename)
+        p.openfile(filename, sim)
+
+        sim.print_att()
         print("Processing", trunc_filename)
 
         p.process_sim(trunc_filename, sim, ws)
         sims_to_process[filename] = "Processed"
         print(filename, "processed")
         sr.write_sim_status_list(sims_to_process)
-    except:
+    except Exception as e:
         print("There was an error, saving current progress")
+        print(e)
         wb.save(output_file)
-
-wb.save(output_file)
+        break
+try:
+    wb.save(output_file)
+except PermissionError:
+    input("The output file seems to be open, close it and press Enter")
+    wb.save(output_file)
 
 
 
