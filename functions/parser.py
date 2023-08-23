@@ -83,8 +83,7 @@ def populate_class(_sim, df1, df2):  # populate the instance attributes with the
     for key, value in options.items():
         setattr(_sim, key, get_statistic(df2, value))
     fa = [df1['d'][1], df1['c'][1], df1['b'][1]]
-    fa_clean = [item for item in fa if
-                not (pd.isnull(item)) is True]  # if there is a nan, drop it, when only 1 bet size
+    fa_clean = [int(float(item[:-1])*10)/1000 for item in fa if not (pd.isnull(item)) is True]  # if there is a nan, drop it, when only 1 bet size
     setattr(_sim, 'first_action', fa_clean)
     setattr(_sim, 'combos', [df1['b'][0]])
 

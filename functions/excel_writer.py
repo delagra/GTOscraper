@@ -64,6 +64,7 @@ def sim_to_excel(base_location, _sim, excel):  # write values into the location 
                     coeff = -1
                     if index > 0:
                         value = float(value) / 100
+
                 # print(base_location.offset(column=idx*4+index))
                 # print(idx,index, idx*4+index+coeff)
                 write_loc = base_location.offset(column=idx * 4 + index + coeff)
