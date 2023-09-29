@@ -1,5 +1,11 @@
 import functions.variables as config
 
+def char2num(col_name):
+    index = 0
+    for char in col_name:
+        index = index * 26 + (ord(char.upper()) - ord('A')) + 1
+    return index - 1
+
 def find_excel_location(value, obj, excel):  # calculate where in excel the data will be written
     value = value[0:3]
     print(value)
@@ -11,7 +17,7 @@ def find_excel_location(value, obj, excel):  # calculate where in excel the data
             print("Base location is", base_loc)
             break
     if obj.is_monotone:
-        return base_loc.offset(column=-522) #this many columns between 2tone and monotone boards in excel
+        return base_loc.offset(column=(char2num('B')-char2num(config.twotone_column))) #this many columns between 2tone and monotone boards in excel
     elif obj.is_rainbow:
         try:
             print(base_loc)
@@ -30,7 +36,7 @@ def find_excel_location(value, obj, excel):  # calculate where in excel the data
                     return base_loc.offset(column=1)
             else:
                 print("Trips board not found")
-        return base_loc.offset(column=484) #this many columns between 2tone and rainbow columns in excel
+        return base_loc.offset(column=(char2num(config.rainbow_column) - char2num(config.twotone_column))+1) #this many columns between 2tone and rainbow columns in excel
     elif obj.is_two_tone2:
         return base_loc.offset(column=1, row=1)
     elif obj.is_two_tone3:

@@ -15,11 +15,11 @@ if 'donk' in args:
     donk_mode = True
 
 p.donk_mode = donk_mode
-wb = op.load_workbook('Simulation Template v2.xlsx')
+wb = op.load_workbook('Simulation Template v3.xlsx')
 ws = wb.active
 output_file = config.output_file
 
-prefix = ws[config.prefix_location] #read file renaming prefix from excel
+prefix = ws[config.prefix_location].value #read file renaming prefix from excel
 
 class Sim:  # class that will contain all sim results to be populated in excel later
 
@@ -45,11 +45,25 @@ class Sim:  # class that will contain all sim results to be populated in excel l
     two_pair = []
     flush = []
     combos = []
+    straight = []
+    second_nut_fd = []
+    third_nut_fd = []
+    pp_top_card = []
+    weak_pair = []
+    premium_draws = []
+    strong_draw = []
+    bare_gutshot = []
+    combo_draw = []
+    bare_ace_high = []
+    bare_overcards = []
+    premium = []
+    strong = []
+    mediocre = []
 
 
 sims_to_process = (sr.read_sim_status_list())
 sim_files = (sr.get_sim_files('./sims'))
-sr.rename_sim_files(sim_files, 'vs BB ')
+sr.rename_sim_files(sim_files, prefix)
 sim_files = (sr.get_sim_files('./sims'))
 print("Syncing available sims with the status file")
 for sim_file in sim_files:

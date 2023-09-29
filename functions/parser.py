@@ -131,11 +131,11 @@ def process_sim(filename, sim, ws):
     df1, df2 = scrape_solve()
     populate_class(sim, df1, df2)
     if sim.is_monotone:
-        columnoffset = 52  # extra columns = flush, 2 pair
+        columnoffset = 108  # extra columns = flush, 2 pair
     elif sim.is_rainbow:
-        columnoffset = 44  # no flush draw, added 2 pair
+        columnoffset = 100  # no flush draw, added 2 pair
     else:
-        columnoffset = 48  # added 2 pair
+        columnoffset = 104  # added 2 pair
     loc = ew.find_excel_location(filename, sim, ws)
     print("Excel write location is", loc)
     ew.sim_to_excel(loc, sim, ws)
